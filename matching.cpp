@@ -8,18 +8,17 @@
 int main()
 {
 
-	constexpr int imNum=2;
 	std::vector<std::string> filename { "base.jpg", "locate.jpg"};
-        std::vector<cv::Mat> imVec(imNum);
-        std::vector<std::vector<cv::KeyPoint>>keypointVec(imNum);
-        std::vector<cv::Mat> descriptorsVec(imNum);
+        std::vector<cv::Mat> imVec(filename.size());
+        std::vector<std::vector<cv::KeyPoint>>keypointVec(filename.size());
+        std::vector<cv::Mat> descriptorsVec(filename.size());
 
         cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create();  
         cv::Ptr<cv::DescriptorExtractor> extractor = cv::ORB::create();
         auto start = std::chrono::high_resolution_clock::now();
 
 #pragma omp parallel for
-       for (int i=0; i<imNum; i++){
+       for (int i=0; i<filename.size(); i++){
 	  imVec[i] = cv::imread( filename[i], cv::IMREAD_ANYCOLOR);
           detector->detect( imVec[i], keypointVec[i] );
           extractor->compute( imVec[i],keypointVec[i],descriptorsVec[i]);
@@ -42,9 +41,9 @@ int main()
 
         cv::Mat output_image;
 
-        for (int i = 0; i < matches.size(); i++)
+        for (auto match : matches)
         {
-                std::cout << matches[i].distance << ", ";
+                std::cout << match.distance << ", ";
         }
         std::cout << std::endl;
 
